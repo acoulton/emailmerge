@@ -118,7 +118,7 @@ class AndrewC_EmailMerge
         if ( ! $this->_template)
         {
             // Try to load
-            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template);
+            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template, $this);
         }
         return $this->_template;
     }
@@ -250,7 +250,7 @@ class AndrewC_EmailMerge
         // If a template is already loaded, reset it
         if ($this->_template)
         {
-            $this->_template = EmailMerge::factory($this->_template_namespace,$name);
+            $this->_template = EmailMerge::factory($this->_template_namespace,$name, $this);
             $this->_merged_mails = array();
         }
         return $this;
