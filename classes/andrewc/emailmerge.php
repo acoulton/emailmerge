@@ -123,6 +123,11 @@ class AndrewC_EmailMerge
         return $this->_template;
     }
 
+    public function template_changed()
+    {
+        $this->_merged_mails = array();
+    }
+
     /**
      * Converts a merge UUID to a path to a persistence file
      * @param string $merge_id The UUID of the merge

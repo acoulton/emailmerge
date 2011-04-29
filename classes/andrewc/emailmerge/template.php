@@ -5,10 +5,20 @@ class AndrewC_EmailMerge_Template
     protected $_subject = null;
     protected $_body = null;
     protected $_name = null;
+    /**
+     *
+     * @var EmailMerge
+     */
+    protected $_merge = null;
 
-    public static function factory($namespace, $name)
+    public static function factory($namespace, $name, $merge)
     {
-        return new EmailMerge_Template();
+        return new EmailMerge_Template($merge);
+    }
+
+    public function __construct($merge)
+    {
+        $this->_merge = $merge;
     }
 
     public function body($body = null)
@@ -17,7 +27,13 @@ class AndrewC_EmailMerge_Template
         {
             return $this->_body;
         }
-        $this->_body = $body;
+
+        if ($this->_body != $body)
+        {
+            $this->_body = $body;
+            $this->_merge->template_changed();
+        }
+        return $this;
     }
 
     public function subject($subject = null)
@@ -26,7 +42,12 @@ class AndrewC_EmailMerge_Template
         {
             return $this->_subject;
         }
-        $this->_subject = $subject;
+        if ($this->_subject != $subject)
+        {
+            $this->_subject = $subject;
+            $this->_merge->template_changed();
+        }
+        return $this;
     }
 
     public function name()
