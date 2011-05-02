@@ -316,6 +316,7 @@ class AndrewC_EmailMerge
         $this->_merged_mails = array();
         foreach ($this->_data as $email)
         {
+            $mail = array();
             $mail['email'] = Arr::get($email,$this->_email_field);
             $mail['name'] = Arr::get($email, $this->_email_name_field, $mail['email']);
             $mail = $mail + $this->_template->merge_mail($email);
