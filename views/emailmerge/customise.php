@@ -42,7 +42,7 @@ $dataset = $merge->get_data();?>
     <h3>Available Fields</h3>
     <ul>
         <?php foreach ($data as $key=>$value):?>
-            <li>{{<?=HTML::chars($key)?>}}</li>
+            <li><a href="#" class="insert-param">{{<?=HTML::chars($key)?>}}</a></li>
         <?php endforeach;?>
     </ul>
     <h3>Formatting</h3>
@@ -56,7 +56,8 @@ $dataset = $merge->get_data();?>
                           $merge->template()->body(),
                           array('rows'=>15,
                                 'cols'=>40,
-                                'style' =>'width: 100%;'))?>
+                                'style' =>'width: 100%;',
+                                'id'=>'body-text'))?>
 </div>
 <div class="clear"></div>
 </fieldset>
@@ -65,3 +66,43 @@ $dataset = $merge->get_data();?>
 <?=Form::submit('edit_mails','Edit Individual Emails')?>
 <?=Form::submit('send_merge','Send Merge')?></p>
 <?=Form::close();?>
+<script type="text/javascript">
+    var body_text = $('body-text');
+
+    function insertAtCursor(myField, myValue) {
+        //IE support
+        if (document.selection) {
+            myField.focus();
+            sel = document.selection.createRange();
+            sel.text = myValue;
+        }
+        //MOZILLA/NETSCAPE support
+        else if (myField.selectionStart || myField.selectionStart == '0') {
+            var startPos = myField.selectionStart;
+            var endPos = myField.selectionEnd;
+            myField.value = myField.value.substring(0, startPos)
+                + myValue
+                + myField.value.substring(endPos, myField.value.length);
+            myField.selectionStart = startPos + myValue.length;
+            myField.selectionEnd = myField.selectionStart;
+        } else {
+            myField.value += myValue;
+        }
+    }
+
+    $(document).observe('dom:loaded', function()
+        {
+            param_links = $$('a.insert-param');
+            param_links.each(function(link)
+            {
+                link.observe('click', function(event)
+                {
+                    event.stop();
+                    insertAtCursor(body_text, this.innerHTML);
+                    body_text.focus();
+                });
+            });
+        }
+    );
+
+</script>
