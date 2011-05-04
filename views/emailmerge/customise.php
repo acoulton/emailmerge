@@ -48,8 +48,7 @@ $dataset = $merge->get_data();?>
     <h3>Formatting</h3>
     <ul>
         <li>[link text](link address)</li>
-        <li>*bold*</li>
-        <li>Two blank lines for new para</li>
+        <li>**bold**</li>
     </ul>
 </div>
 <div style="margin-left: 15em; padding: 1em;">
