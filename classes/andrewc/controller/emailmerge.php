@@ -27,7 +27,7 @@ abstract class AndrewC_Controller_EmailMerge extends Controller_Template
             case 'customise':
                 $data = Arr::extract($_POST,array('sender_email','sender_name','template_subject','template_body'));
                 $this->merge->sender_email($data['sender_email']);
-                $this->merge->sender_name($data['sender_email']);
+                $this->merge->sender_name($data['sender_name']);
                 $this->merge->template()->subject($data['template_subject']);
                 $this->merge->template()->body($data['template_body']);
             break;
