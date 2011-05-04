@@ -6,11 +6,11 @@ $mails = $merge->get_mails();?>
 <?php foreach ($mails as $mail):?>
 <div class="mail">
     <h3><?=HTML::chars($mail['subject'])?></h3>
-    <p>To: <?=HTML::chars($mail['email'])?>
+    <p class="recipient">To: <?=HTML::chars($mail['email'])?>
         <?php if ($mail['name']!=$mail['email']):?>
             (<?=HTML::chars($mail['name'])?>)
         <?php endif;?></p>
-    <p><?=nl2br(HTML::chars($mail['body']))?></p>
+    <?=$mail['html_body']?>
 </div>
 <?php endforeach;?>
 <?=Form::open(Route::get('emailmerge')

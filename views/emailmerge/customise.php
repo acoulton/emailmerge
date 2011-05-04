@@ -45,6 +45,12 @@ $dataset = $merge->get_data();?>
             <li>{{<?=HTML::chars($key)?>}}</li>
         <?php endforeach;?>
     </ul>
+    <h3>Formatting</h3>
+    <ul>
+        <li>[link text](link address)</li>
+        <li>*bold*</li>
+        <li>Two blank lines for new para</li>
+    </ul>
 </div>
 <div style="margin-left: 15em; padding: 1em;">
         <?=Form::textarea('template_body',

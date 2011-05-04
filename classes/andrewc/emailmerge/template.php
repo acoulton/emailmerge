@@ -57,25 +57,21 @@ class AndrewC_EmailMerge_Template
 
     public function merge_mail($data)
     {
-        $subject = $this->_subject;
-        $body = $this->_body;
-        if (preg_match_all('/{{[a-zA-Z0-9:_]+}}/', $subject,$matches))
+        return array('body' => $this->_merge_text($this->_body,$data),
+                     'subject' => $this->_merge_text($this->_subject, $data));
+    }
+
+    protected function _merge_text($template, $data)
+    {
+        if (preg_match_all('/{{[a-zA-Z0-9:_]+}}/', $template,$matches))
         {
             foreach (Arr::get($matches,0) as $marker)
             {
                 $field = trim($marker, '{}');
-                $subject = str_replace($marker, $data[$field], $subject);
+                $template = str_replace($marker, HTML::chars($data[$field]), $template);
             }
         }
-
-        if (preg_match_all('/{{[a-zA-Z0-9:_]+}}/', $body,$matches))
-        {
-            foreach (Arr::get($matches,0) as $marker)
-            {
-                $field = trim($marker, '{}');
-                $body = str_replace($marker, $data[$field], $body);
-            }
-        };
-        return array('body'=>$body,'subject'=>$subject);
+        return $template;
     }
+
 }

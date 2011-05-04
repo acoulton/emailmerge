@@ -73,6 +73,12 @@ class AndrewC_EmailMerge
     protected $_merged_mails = array();
 
     /**
+     * The markdown parser
+     * @var Markdown_Parser
+     */
+    protected $_markdown = null;
+
+    /**
      * Reloads an existing merge, or creates a new one
      * @param string $merge_id The UUID of the merge to load, or null to create new
      * @param array $config A set of config values to merge with existing config
@@ -313,6 +319,8 @@ class AndrewC_EmailMerge
             return false;
         }
 
+        $markdown = $this->get_markdown();
+
         $this->_merged_mails = array();
         foreach ($this->_data as $email)
         {
@@ -320,6 +328,7 @@ class AndrewC_EmailMerge
             $mail['email'] = Arr::get($email,$this->_email_field);
             $mail['name'] = Arr::get($email, $this->_email_name_field, $mail['email']);
             $mail = $mail + $this->_template->merge_mail($email);
+            $mail['html_body'] = $markdown->transform($mail['body']);
             $this->_merged_mails[] = $mail;
         }
     }
@@ -335,7 +344,14 @@ class AndrewC_EmailMerge
 
     public function replace_mails($mails)
     {
-        $this->_merged_mails = $mails;
+        $this->_merged_mails = array();
+        $markdown = $this->get_markdown();
+
+        foreach ($mails as $mail)
+        {
+            $mail['html_body'] = $markdown->transform($mail['body']);
+            $this->_merged_mails[] = $mail;
+        }
         return $this;
     }
 
@@ -363,13 +379,43 @@ class AndrewC_EmailMerge
             $this->_email_layout = View::factory($this->_email_layout);
         }
 
-        $this->_email_layout->set('bodyText',"<p>" . nl2br(HTML::chars($mail_data['body'])) . "</p>");
+        $this->_email_layout->set('bodyText',$mail_data['html_body']);
 
         $richMessage = $this->_email_layout->render();
         $mail->setBody(preg_replace('/[ \t]+/', ' ', strip_tags($richMessage)));
         $mail->addPart($richMessage,'text/html');
         return $mail;
 
+    }
+
+    /**
+     * Tries to load the Markdown parser, first from registered modules and then
+     * from userguide directly if not found
+     * @return Markdown_Parser
+     */
+    protected function get_markdown()
+    {
+        static $markdown = null;
+
+        if ($markdown)
+        {
+            return $markdown;
+        }
+
+        $markdown = Kohana::find_file('vendor', 'markdown/markdown');
+        if ($markdown)
+        {
+            require_once($markdown);
+        }
+        else
+        {
+            require_once(MODPATH . 'userguide/vendor/markdown');
+        }
+
+
+        $markdown = new Markdown_Parser();
+        $markdown->no_markup = true;
+        return $markdown;
     }
 
 } // End AndrewC_EmailMerge

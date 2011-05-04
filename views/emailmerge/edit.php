@@ -22,7 +22,7 @@ $mails = $merge->get_mails();?>
         </label>
         <label class="modelblock">
             <span class="caption">Message</span>
-            <?=Form::textarea("mail[$index][body]",$mail['body'])?>
+            <?=Form::textarea("mail[$index][body]",$mail['body'],array('style'=>'width:50em'))?>
         </label>
 </fieldset>
 <?php endforeach;?>
