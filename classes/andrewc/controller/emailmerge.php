@@ -104,13 +104,12 @@ abstract class AndrewC_Controller_EmailMerge extends Controller_Template
         if ( ! $failures)
         {
             $this->merge->persist();
-            $this->request->redirect(Route::get('emailmerge')
-                                        ->uri(array('action'=>'complete',
-                                                    'merge_id'=>$this->merge->id())));
+            $this->auto_render = false;
+            return $this->merge->merge_complete($this->request);
         }
 
         // Replace with just the failures
-        $this->merge->replace_mails($failures);
+        //@todo: Ignore mails that have already been sent
         $this->merge->persist();
 
         $this->template->body = View::factory('emailmerge/send_errors')

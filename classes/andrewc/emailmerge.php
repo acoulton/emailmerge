@@ -10,7 +10,10 @@ defined('SYSPATH') or die('No direct script access.');
  *              ->email_field('custom_email')
  *              ->template_namespace('competition')
  *              ->template('winner')
- *              ->on_complete('default',array('controller'=>''));
+ *              ->on_complete(Route::get('default')
+ *                              ->uri(array('controller'=>'thing',
+ *                                          'action'=>'merge_done')),
+ *                            EmailMerge::COMPLETION_HMVC_POST);
  *
  *     // Show a form allowing the user to customise the merge and proceed to
  *     // preview, edit, and send
@@ -19,6 +22,10 @@ defined('SYSPATH') or die('No direct script access.');
  */
 class AndrewC_EmailMerge
 {
+    const COMPLETION_REDIRECT = 1;
+    const COMPLETION_HMVC_GET = 2;
+    const COMPLETION_HMVC_POST = 3;
+
     /**
      * @var string A UUID identifying this EmailMerge instance
      */
@@ -417,5 +424,58 @@ class AndrewC_EmailMerge
         $markdown->no_markup = true;
         return $markdown;
     }
+
+    /**
+     * Sets an on complete handler to call once the mail merge is done
+     * @param string $uri
+     * @param int $method
+     * @param array $data
+     * @return AndrewC_EmailMerge
+     */
+    public function set_on_complete($uri, $method = self::COMPLETION_REDIRECT, $data=array())
+    {
+        $this->_on_complete = array(
+            'uri' => $uri,
+            'method' => $method,
+            'data' => array('merge_id'=>$this->_merge_id) + $data
+        );
+
+        return $this;
+    }
+
+    /**
+     * Executes the on complete handler with the given main request. NOTE that the
+     * completion handler is responsible for disposing of the merge!
+     */
+    public function merge_complete(Request $request)
+    {
+        $action = $this->_on_complete ? $this->_on_complete
+                                      : array('uri'=>Route::get('emailmerge')
+                                                ->uri(array('action'=>'complete',
+                                                            'merge_id'=>$this->_merge_id)),
+                                              'method'=>self::COMPLETION_REDIRECT,
+                                              'data'=>array('merge_id'=>$this->_merge_id));
+        extract($action);
+
+        switch ($method)
+        {
+            case self::COMPLETION_REDIRECT:
+                $uri = $uri . "?" . http_build_query($data);
+                $request->redirect($uri);
+            break;
+
+            case self::COMPLETION_HMVC_GET:
+            //@todo: Can't do POST with KO3.0
+            case self::COMPLETION_HMVC_POST:
+                $_GET = $data;
+                $sub_request = Request::factory($uri)
+                                ->execute();
+                $request->response = $sub_request->response;
+            return;
+            default:
+                throw new InvalidArgumentException("Invalid method $method for on-complete callback");
+        }
+    }
+
 
 } // End AndrewC_EmailMerge
