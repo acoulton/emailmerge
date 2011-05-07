@@ -42,21 +42,31 @@ abstract class AndrewC_Controller_EmailMerge extends Controller_Template
 
         if (isset($_POST['preview_merge']))
         {
-            return $this->preview();
+            $action = 'preview';
         }
         elseif(isset($_POST['edit_mails']))
         {
-            return $this->edit();
+            $action = 'edit';
         }
         elseif(isset($_POST['send_merge']))
         {
-           return  $this->send();
+           $action = 'send';
+        }
+        else
+        {
+            $action = 'customise';
         }
 
-        $this->template->body = $this->merge->customise();
+        $this->request->redirect($this->merge->action_uri($action));
     }
 
-    public function preview()
+    public function action_customise()
+    {
+        $this->template->body = View::factory('emailmerge/customise')
+                                    ->set('merge',$this->merge);
+    }
+
+    public function action_preview()
     {
         // Build the merge
         $this->merge->build_merge();
@@ -67,14 +77,14 @@ abstract class AndrewC_Controller_EmailMerge extends Controller_Template
                                 ->set('merge',$this->merge);
     }
 
-    public function edit()
+    public function action_edit()
     {
 
         $this->template->body = View::factory('emailmerge/edit')
                                 ->set('merge',$this->merge);
     }
 
-    public function send()
+    public function action_send()
     {
         set_time_limit(0);
         ignore_user_abort(true);

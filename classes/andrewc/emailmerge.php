@@ -26,6 +26,13 @@ class AndrewC_EmailMerge
     const COMPLETION_HMVC_GET = 2;
     const COMPLETION_HMVC_POST = 3;
 
+    const ACTION_CUSTOMISE = 'customise';
+    const ACTION_PREVIEW = 'preview';
+    const ACTION_EDIT = 'edit';
+    const ACTION_SEND = 'send';
+    const ACTION_COMPLETE = 'complete';
+    const ACTION_PROCESS = 'process';
+
     /**
      * @var string A UUID identifying this EmailMerge instance
      */
@@ -125,10 +132,10 @@ class AndrewC_EmailMerge
      */
     public function template()
     {
-        if ( ! $this->_template)
+        if ( ! $this->_template instanceof EmailMerge_Template)
         {
             // Try to load
-            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template_name, $this);
+            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template, $this);
         }
         return $this->_template;
     }
@@ -293,6 +300,7 @@ class AndrewC_EmailMerge
 
     /**
      * Persists the merge to permanent storage at various stages of the wizard
+     * @return EmailMerge
      */
     public function persist()
     {
@@ -303,6 +311,7 @@ class AndrewC_EmailMerge
             mkdir($path, 0777, TRUE);
         }
         file_put_contents($file, serialize($this));
+        return $this;
     }
 
     /**
@@ -312,13 +321,6 @@ class AndrewC_EmailMerge
     {
         $file = self::persistence_file($this->_merge_id);
         unlink($file);
-    }
-
-    public function customise()
-    {
-        $this->persist();
-        return View::factory('emailmerge/customise')
-                    ->set('merge',$this);
     }
 
     public function build_merge($force = false)
@@ -477,6 +479,17 @@ class AndrewC_EmailMerge
             default:
                 throw new InvalidArgumentException("Invalid method $method for on-complete callback");
         }
+    }
+
+    /**
+     * Gets the URI to one of the actions
+     * @param string $action
+     * @return string
+     */
+    public function action_uri($action)
+    {
+        return Route::get('emailmerge')
+                ->uri(array('merge_id'=>$this->_merge_id, 'action'=>$action));
     }
 
 
