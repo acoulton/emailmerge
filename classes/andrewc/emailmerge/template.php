@@ -13,12 +13,14 @@ class AndrewC_EmailMerge_Template
 
     public static function factory($namespace, $name, $merge)
     {
-        return new EmailMerge_Template($merge);
+        return new EmailMerge_Template($namespace, $name, $merge);
     }
 
-    public function __construct($merge)
+    public function __construct($namespace, $name, $merge)
     {
         $this->_merge = $merge;
+        $this->_namespace = $namespace ? $namespace : 'generic';
+        $this->load($name);
     }
 
     public function body($body = null)
@@ -53,6 +55,40 @@ class AndrewC_EmailMerge_Template
     public function name()
     {
         return $this->_name;
+    }
+
+    public function load($name)
+    {
+        if ($name === null)
+        {
+            $name = 'default';
+        }
+
+        $path = "emailmerge/templates/" . $this->_namespace;
+
+        // Look in the user template store
+        // Then in the application template store
+        $file = Kohana::find_file($path, $name);
+        if (file_exists($file))
+        {
+            $data = include($file);
+            $this->_subject = $data['subject'];
+            $this->_body = $data['body'];
+        }
+        else
+        {
+            $this->_subject = null;
+            $this->_body = null;
+        }
+        $this->_merge->template_changed();
+    }
+
+    public function save($name)
+    {
+        // Store it in the user template store
+        // Or the application template store
+        // Write it out as if it was a config file
+        // Change the internal template name
     }
 
     public function merge_mail($data)

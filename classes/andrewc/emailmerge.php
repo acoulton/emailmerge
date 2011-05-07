@@ -51,9 +51,6 @@ class AndrewC_EmailMerge
      */
     protected $_template_namespace = null;
 
-    protected $_template_name = null;
-
-
     protected $_controller_layout = null;
     protected $_email_layout = 'templates/emailBase';
 
@@ -131,7 +128,7 @@ class AndrewC_EmailMerge
         if ( ! $this->_template)
         {
             // Try to load
-            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template, $this);
+            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template_name, $this);
         }
         return $this->_template;
     }
@@ -255,16 +252,21 @@ class AndrewC_EmailMerge
     {
         if ($name === null)
         {
-            return $this->_template_name;
+            if ($this->_template instanceof EmailMerge_Template)
+            {
+                return $this->_template->name();
+            }
+            return $this->_template;
         }
 
-        $this->_template_name = $name;
-
         // If a template is already loaded, reset it
-        if ($this->_template)
+        if ($this->_template instanceof EmailMerge_Template)
         {
-            $this->_template = EmailMerge::factory($this->_template_namespace,$name, $this);
-            $this->_merged_mails = array();
+            $this->_template->load($name);
+        }
+        else
+        {
+            $this->_template = $name;
         }
         return $this;
     }
