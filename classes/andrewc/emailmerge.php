@@ -53,10 +53,6 @@ class AndrewC_EmailMerge
      */
     protected $_email_name_field = null;
 
-    /**
-     * @var string By default, the template to use is user configurable, but the namespace is not
-     */
-    protected $_template_namespace = null;
 
     protected $_controller_layout = null;
     protected $_email_layout = 'templates/emailBase';
@@ -135,7 +131,7 @@ class AndrewC_EmailMerge
         if ( ! $this->_template instanceof EmailMerge_Template)
         {
             // Try to load
-            $this->_template = EmailMerge_Template::factory($this->_template_namespace, $this->_template, $this);
+            $this->_template = EmailMerge_Template::factory($this);
         }
         return $this->_template;
     }
@@ -233,48 +229,26 @@ class AndrewC_EmailMerge
      */
     public function template_namespace($namespace = null)
     {
+
         if ($namespace === null)
         {
-            return $this->_template_namespace;
+            return $this->template()->get_namespace();
         }
 
-        if ($this->_template)
-        {
-            throw new BadMethodCallException("Cannot set namespace once template is created");
-        }
-
-        $this->_template_namespace = $namespace;
+        $this->template()->set_namespace($namespace);
         return $this;
     }
 
     /**
-     * Setter/Getter for the template name. By default, the user can select a
-     * different template at runtime at the customise() stage.
+     * Proxy to [EmailMerge_Template::load()] to allow chaining of calls with the
+     * merge object in scope.
      *
      * @param string $name
-     * @return string If used as getter ($namespace left blank)
      * @return EmailMerge If used as setter
      */
-    public function template_name($name = null)
+    public function template_load($name)
     {
-        if ($name === null)
-        {
-            if ($this->_template instanceof EmailMerge_Template)
-            {
-                return $this->_template->name();
-            }
-            return $this->_template;
-        }
-
-        // If a template is already loaded, reset it
-        if ($this->_template instanceof EmailMerge_Template)
-        {
-            $this->_template->load($name);
-        }
-        else
-        {
-            $this->_template = $name;
-        }
+        $this->template()->load($name);
         return $this;
     }
 

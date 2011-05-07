@@ -4,29 +4,34 @@ class AndrewC_EmailMerge_Template
 {
     protected $_subject = null;
     protected $_body = null;
-    protected $_name = null;
+    protected $_name = 'default';
+    protected $_namespace = 'generic';
+    protected $_loaded = false;
+
     /**
      *
      * @var EmailMerge
      */
     protected $_merge = null;
 
-    public static function factory($namespace, $name, $merge)
+    public static function factory($merge)
     {
-        return new EmailMerge_Template($namespace, $name, $merge);
+        return new EmailMerge_Template($merge);
     }
 
-    public function __construct($namespace, $name, $merge)
+    public function __construct($merge)
     {
         $this->_merge = $merge;
-        $this->_namespace = $namespace ? $namespace : 'generic';
-        $this->load($name);
     }
 
     public function body($body = null)
     {
         if ($body === null)
         {
+            if ( ! $this->_loaded)
+            {
+                $this->load();
+            }
             return $this->_body;
         }
 
@@ -42,6 +47,10 @@ class AndrewC_EmailMerge_Template
     {
         if ($subject === null)
         {
+            if ( ! $this->_loaded)
+            {
+                $this->load();
+            }
             return $this->_subject;
         }
         if ($this->_subject != $subject)
@@ -57,18 +66,40 @@ class AndrewC_EmailMerge_Template
         return $this->_name;
     }
 
-    public function load($name)
+    public function set_namespace($namespace)
     {
-        if ($name === null)
+        if ($this->_loaded)
         {
-            $name = 'default';
+            throw new BadMethodCallException("Can't set namespace once loaded");
+        }
+        $this->_namespace = $namespace;
+    }
+
+    public function get_namespace()
+    {
+        return $this->_namespace;
+    }
+
+    public function available_files()
+    {
+        $paths = Kohana::include_paths();
+        // Add the instance store to this path list
+
+        return Kohana::list_files('emailmerge/templates', $paths);
+    }
+
+    public function load($name=null)
+    {
+        if ($name !== null)
+        {
+            $this->_name = $name;
         }
 
         $path = "emailmerge/templates/" . $this->_namespace;
 
         // Look in the user template store
         // Then in the application template store
-        $file = Kohana::find_file($path, $name);
+        $file = Kohana::find_file($path, $this->_name);
         if (file_exists($file))
         {
             $data = include($file);
@@ -80,6 +111,7 @@ class AndrewC_EmailMerge_Template
             $this->_subject = null;
             $this->_body = null;
         }
+        $this->_loaded = true;
         $this->_merge->template_changed();
     }
 
@@ -93,6 +125,10 @@ class AndrewC_EmailMerge_Template
 
     public function merge_mail($data)
     {
+        if ( ! $this->_loaded)
+        {
+            $this->load();
+        }
         return array('body' => $this->_merge_text($this->_body,$data),
                      'subject' => $this->_merge_text($this->_subject, $data));
     }
