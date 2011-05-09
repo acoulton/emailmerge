@@ -108,7 +108,7 @@ class AndrewC_EmailMerge_Template
     public function available_templates()
     {
         $files = Kohana::list_files(null, $this->_paths());
-        $templates = array();
+        $templates = array(null=>'Default');
         foreach ($files as $file)
         {
             $file = basename($file, '.php');
