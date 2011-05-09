@@ -3,24 +3,22 @@ defined('SYSPATH') or die('No direct script access.');
 /* @var $merge EmailMerge */
 $dataset = $merge->get_data();?>
 <h1>Customise Email Merge</h1>
-<p>Type: <?=HTML::chars($merge->template_namespace())?></p>
 <p><?=count($dataset)?> Recipients:</p>
 <ul>
     <?php foreach ($dataset as $data):?>
         <li><?=HTML::chars($merge->get_email_address($data))?></li>
     <?php endforeach;?>
 </ul>
-<?=Form::open(Route::get('emailmerge')
-                ->uri(array(
-                    'merge_id'=>$merge->id(),
-                    'action'=>'process')));?>
+<?=Form::open($merge->action_uri(EmailMerge::ACTION_PROCESS));?>
 <?=Form::hidden('formtype','customise');?>
 <fieldset>
     <legend>Setup</legend>
     <h3>Template</h3>
-    <label class="modelblock">
-
+    <label>
+        <span class="caption">Available templates:</span>
+        <?=Form::select('template_file',$merge->template()->available_templates(), $merge->template()->name());?>
     </label>
+    <p><?=Form::submit('load_template',"Load new template");?></p>
     <h3>Sender</h3>
     <label class="modelblock">
         <span class="caption">Sender Email:</span>
@@ -60,6 +58,19 @@ $dataset = $merge->get_data();?>
                                 'id'=>'body-text'))?>
 </div>
 <div class="clear"></div>
+<h3>Template changes</h3>
+    <div style="margin-left: 15em; padding:1em;">
+        <label class="modelblock">
+                <?=Form::radio('template_changes', 'no_save', true, array('class'=>'check'));?> Don't save changes.</label>
+        <label class="modelblock">
+                <?=Form::radio('template_changes', 'this_template', false, array('class'=>'check'));?> Save changes to the current template.</label>
+        <label class="modelblock" style="display: inline-block; width:auto;">
+                <?=Form::radio('template_changes', 'new_template', false, array('class'=>'check'));?> Create a new template</label>
+        <label class="modelblock" style="display: inline-block; width:auto;">
+            - name
+                <?=Form::input('new_template_name')?></label>
+        </div>
+    </div>
 </fieldset>
 <p class="submitstrip">
 <?=Form::submit('preview_merge','Preview Merge')?>

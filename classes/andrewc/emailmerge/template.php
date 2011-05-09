@@ -7,6 +7,7 @@ class AndrewC_EmailMerge_Template
     protected $_name = 'default';
     protected $_namespace = 'generic';
     protected $_loaded = false;
+    protected static $_client_store = null;
 
     /**
      *
@@ -80,47 +81,101 @@ class AndrewC_EmailMerge_Template
         return $this->_namespace;
     }
 
-    public function available_files()
+    protected function _paths()
     {
-        $paths = Kohana::include_paths();
-        // Add the instance store to this path list
+        static $paths = null;
+        if ($paths)
+        {
+            return $paths;
+        }
 
-        return Kohana::list_files('emailmerge/templates', $paths);
+        if ( ! self::$_client_store)
+        {
+            self::$_client_store = Kohana::config('emailmerge.client_template_path');
+        }
+
+        // The top path is the client's template store
+        $paths = array(self::$_client_store . $this->_namespace . '/');
+
+        // Then the Kohana paths
+        foreach (Kohana::include_paths() as $path)
+        {
+            $paths[] = $path . 'emailmerge/templates/' . $this->_namespace . '/';
+        }
+        return $paths;
+    }
+
+    public function available_templates()
+    {
+        $files = Kohana::list_files(null, $this->_paths());
+        $templates = array();
+        foreach ($files as $file)
+        {
+            $file = basename($file, '.php');
+            $templates[$file] = str_replace('-', ' ', ucwords($file));
+        }
+        return $templates;
     }
 
     public function load($name=null)
     {
+        // Set the template name if loading a new template
         if ($name !== null)
         {
-            $this->_name = $name;
+            $this->_name = URL::title($name,'-',true);
         }
 
-        $path = "emailmerge/templates/" . $this->_namespace;
-
-        // Look in the user template store
-        // Then in the application template store
-        $file = Kohana::find_file($path, $this->_name);
-        if (file_exists($file))
+        // Search for a template file in our path tree
+        $data = null;
+        foreach ($this->_paths() as $path)
         {
-            $data = include($file);
-            $this->_subject = $data['subject'];
-            $this->_body = $data['body'];
+            $file = $path . $this->_name . '.php';
+
+            // Found a template - load it
+            if (is_file($file))
+            {
+                $data = include($file);
+                $this->_subject = $data['subject'];
+                $this->_body = $data['body'];
+                break;
+            }
         }
-        else
+
+        // Nothing found - reset to empty
+        if ($data === null)
         {
             $this->_subject = null;
             $this->_body = null;
         }
+
+        // Mark loaded, tell the merge the template has changed
         $this->_loaded = true;
         $this->_merge->template_changed();
     }
 
-    public function save($name)
+    public function save($name = null)
     {
-        // Store it in the user template store
-        // Or the application template store
-        // Write it out as if it was a config file
-        // Change the internal template name
+        // Set the name if provided
+        if ($name !== null)
+        {
+            $this->_name = URL::title($name,'-',true);
+        }
+
+        // Store it in the top level of our paths
+        $path = Arr::get($this->_paths(),0,'!No Paths Found!');
+
+        if ( ! is_dir($path))
+        {
+            mkdir($path, 0777, true);
+        }
+
+        // Create a formatted php file
+        $template = "<?php\r\n return " . var_export(array(
+                            'subject' => $this->_subject,
+                            'body'    => $this->_body),
+                        true) . ";";
+        file_put_contents($path . $this->_name . '.php', $template);
+        return $this;
     }
 
     public function merge_mail($data)
