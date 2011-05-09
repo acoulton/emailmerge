@@ -417,7 +417,7 @@ class AndrewC_EmailMerge
         $mail->setBcc($this->_sender_email);
 
         $headers = $mail->getHeaders();
-        $headers->addTextHeader('X-EIBF-Staff-'.$this->_template_namespace, 'automail');
+        $headers->addTextHeader('X-EIBF-Staff-'.$this->template()->get_namespace(), 'automail');
 
         if ( ! $this->_email_layout instanceof View)
         {
