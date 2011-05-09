@@ -69,7 +69,6 @@ $dataset = $merge->get_data();?>
         <label class="modelblock" style="display: inline-block; width:auto;">
             - name
                 <?=Form::input('new_template_name')?></label>
-        </div>
     </div>
 </fieldset>
 <p class="submitstrip">
