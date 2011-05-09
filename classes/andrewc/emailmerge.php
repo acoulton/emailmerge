@@ -154,6 +154,64 @@ class AndrewC_EmailMerge
         return $path;
     }
 
+    public function garbage_collect()
+    {
+        $base = Kohana::config('emailmerge.persistence_path');
+        $iterator = new DirectoryIterator($base);
+        $this->_gc_find_empty($iterator, $base, $empty_paths);
+        array_reverse($empty_paths);
+        $problems = false;
+        foreach ($empty_paths as $path)
+        {
+            try
+            {
+                unlink($path);
+            }
+            catch(ErrorException $e)
+            {
+                $problems[] = $path;
+            }
+        }
+        if ($problems)
+        {
+            Kohana::$log->add(Kohana::ERROR, "Couldn't unlink some paths: " . implode(', ', $problems));
+        }
+    }
+
+    protected function _gc_find_empty(DirectoryIterator $iterator, $base_path, &$empty_paths)
+    {
+        $empty = true;
+        foreach ($iterator as $file)
+        {
+            if ($file->isDot())
+            {
+                continue;
+            }
+
+            if ($file->isFile())
+            {
+                return false;
+            }
+
+            // If it's less than 1 min old in case we're persisting right now
+            if ($file->getMTime() > (time()-60))
+            {
+                return false;
+            }
+
+            if ($file->isDir())
+            {
+                $sub_empty = $this->_gc_find_empty(new DirectoryIterator($file->getPathname()), $file->getPathname(), $empty_paths);
+                $empty = $empty && $sub_empty;
+            }
+        }
+        if ($empty)
+        {
+            $empty_paths[] = $base_path;
+        }
+        return $empty;
+    }
+
     /**
      * Constructs a new instance and sets a unique id for later use
      * @param array $config An array of config settings
@@ -162,6 +220,7 @@ class AndrewC_EmailMerge
     {
         $this->_config = $config;
         $this->_merge_id = UUID::v4();
+        $this->garbage_collect();
     }
 
     public function controller_layout($layout = null)
@@ -295,6 +354,7 @@ class AndrewC_EmailMerge
     {
         $file = self::persistence_file($this->_merge_id);
         unlink($file);
+        $this->garbage_collect();
     }
 
     public function build_merge($force = false)
