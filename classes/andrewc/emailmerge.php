@@ -159,6 +159,10 @@ class AndrewC_EmailMerge
         $base = Kohana::config('emailmerge.persistence_path');
         $iterator = new DirectoryIterator($base);
         $this->_gc_find_empty($iterator, $base, $empty_paths);
+        if (! $empty_paths)
+        {
+            return;
+        }
         array_reverse($empty_paths);
         $problems = false;
         foreach ($empty_paths as $path)
