@@ -1,5 +1,8 @@
 <?php
 defined('SYSPATH') or die('No direct script access.');
+/**
+ * @package EmailMerge
+ */
 abstract class AndrewC_Controller_EmailMerge extends Controller_Template
 {
     /**

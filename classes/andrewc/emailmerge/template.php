@@ -1,8 +1,24 @@
 <?php
 defined('SYSPATH') or die('No direct script access.');
+/**
+ * Class to handle loading, saving and managing templates for an [EmailMerge]
+ *
+ * @package    EmailMerge
+ * @category   Core
+ * @author     Andrew Coulton
+ * @copyright  (c) 2011 Andrew Coulton
+ * @license    http://kohanaphp.com/license
+ */
 class AndrewC_EmailMerge_Template
 {
+   /**
+    * @var string Email subject template
+    */
     protected $_subject = null;
+
+    /**
+     * @var string Email body template
+     */
     protected $_body = null;
     protected $_name = 'default';
     protected $_namespace = 'generic';
