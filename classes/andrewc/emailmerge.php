@@ -230,6 +230,7 @@ class AndrewC_EmailMerge
         // Get a DirectoryIterator and recurse into it
         $iterator = new DirectoryIterator($base);
         $this->_gc_find_empty($iterator, $base, $empty_paths);
+        unset($iterator);
 
         // Check for empty paths
         if (! $empty_paths)
@@ -292,9 +293,15 @@ class AndrewC_EmailMerge
             // Recurse into any folders found
             if ($file->isDir())
             {
-                $sub_empty = $this->_gc_find_empty(new DirectoryIterator($file->getPathname()), $file->getPathname(), $empty_paths);
+                $sub_iterator = new DirectoryIterator($file->getPathname());
+                $sub_empty = $this->_gc_find_empty($sub_iterator, $file->getPathname(), $empty_paths);
                 $empty = $empty && $sub_empty;
+                unset($sub_iterator);
             }
+        }
+        if (isset($file))
+        {
+            unset($file);
         }
         if ($empty)
         {
