@@ -245,7 +245,10 @@ class AndrewC_EmailMerge
         {
             try
             {
-                unlink($path);
+                if ( ! rmdir($path))
+                {
+                    $problems[] = $path;
+                }
             }
             catch(ErrorException $e)
             {
@@ -253,7 +256,7 @@ class AndrewC_EmailMerge
             }
         }
 
-        // Some issues on Windows (still to be investigated) where empty paths cannot be unlinked
+        // Log any failures to remove paths
         if ($problems)
         {
             Kohana::$log->add(Kohana::ERROR, "Couldn't unlink some paths: " . implode(', ', $problems));
