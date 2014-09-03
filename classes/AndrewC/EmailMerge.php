@@ -202,14 +202,13 @@ class AndrewC_EmailMerge
         $this->_merged_mails = array();
     }
 
-    /**
-     * Internal method to convert a merge UUID into a path to the [persistence
-     * file](emailmerge/persistence).
-     *
-     * @param string $merge_id The UUID of the merge
-     * @param array $config A set of EmailMerge config settings
-     * @return string The expected path to the merge file
-     */
+	/**
+	 * Internal method to convert a merge UUID into a path to the [persistence
+	 * file](emailmerge/persistence).
+	 *
+	 * @param string $merge_id The UUID of the merge
+	 * @return string The expected path to the merge file
+	 */
     public static function persistence_file($merge_id)
     {
         $base = Kohana::$config->load('emailmerge.persistence_path');
@@ -273,6 +272,7 @@ class AndrewC_EmailMerge
         $empty = true;
         foreach ($iterator as $file)
         {
+			/** @var DirectoryIterator $file */
             if ($file->isDot())
             {
                 continue;
