@@ -328,8 +328,8 @@ class AndrewC_EmailMerge
      *              ->controller_layout('templates/site');
      *
      * @param string $layout The layout view
-     * @return string
-     * @return AndrewC_EmailMerge
+	 *
+     * @return AndrewC_EmailMerge|string
      */
     public function controller_layout($layout = null)
     {
@@ -404,8 +404,8 @@ class AndrewC_EmailMerge
      *              ->template_namespace('competition');
      *
      * @param string $namespace
-     * @return string If used as getter ($namespace left blank)
-     * @return EmailMerge If used as setter
+     *
+     * @return EmailMerge|string If used as setter
      * @throws BadMethodCallException if the template has already been loaded
      */
     public function template_namespace($namespace = null)
@@ -437,8 +437,7 @@ class AndrewC_EmailMerge
      * Sets or gets the sender's email address.
      *
      * @param string $email
-     * @return string If used as a getter
-     * @return AndrewC_EmailMerge If used as a setter
+     * @return AndrewC_EmailMerge|string
      */
     public function sender_email($email = null)
     {
@@ -448,8 +447,8 @@ class AndrewC_EmailMerge
     /**
      * Sets or gets the sender's name.
      * @param string $name
-     * @return string If used as a getter
-     * @return AndrewC_EmailMerge If used as a setter
+     *
+     * @return AndrewC_EmailMerge|string If used as a setter
      */
     public function sender_name($name = null)
     {
