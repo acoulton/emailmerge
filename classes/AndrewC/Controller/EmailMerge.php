@@ -112,7 +112,7 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
 
         $mails = $this->merge->get_mails();
 
-        $mailer = Email::connect();
+        $mailer = Email::mailer();
         /* @var $mailer Swift_Mailer */
         $mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin(15, 30));
         $failures = false;
