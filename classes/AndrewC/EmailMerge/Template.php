@@ -107,7 +107,7 @@ class AndrewC_EmailMerge_Template
 
         if ( ! self::$_client_store)
         {
-            self::$_client_store = Kohana::config('emailmerge.client_template_path');
+            self::$_client_store = Kohana::$config->load('emailmerge.client_template_path');
         }
 
         // The top path is the client's template store

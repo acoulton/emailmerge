@@ -78,7 +78,7 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
             $action = 'customise';
         }
 
-        $this->request->redirect($this->merge->action_uri($action));
+        $this->redirect($this->merge->action_uri($action));
     }
 
     public function action_customise()
@@ -136,7 +136,7 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
         {
             $this->merge->persist();
             $this->auto_render = false;
-            return $this->merge->merge_complete($this->request);
+            return $this->merge->merge_complete($this->request, $this->response);
         }
 
         // Replace with just the failures

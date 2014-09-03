@@ -127,7 +127,7 @@ class AndrewC_EmailMerge
     public static function factory($merge_id = null, $config = array())
     {
         // Merge the passed config with the config file settings
-        $config = Arr::merge($config, Kohana::config('emailmerge.instance'));
+        $config = Arr::merge($config, Kohana::$config->load('emailmerge.instance'));
 
         if ($merge_id)
         {
@@ -212,7 +212,7 @@ class AndrewC_EmailMerge
      */
     public static function persistence_file($merge_id)
     {
-        $base = Kohana::config('emailmerge.persistence_path');
+        $base = Kohana::$config->load('emailmerge.persistence_path');
         $path = $base . str_replace('-', '/', $merge_id) . ".merge";
         return $path;
     }
@@ -225,7 +225,7 @@ class AndrewC_EmailMerge
      */
     public function garbage_collect()
     {
-        $base = Kohana::config('emailmerge.persistence_path');
+        $base = Kohana::$config->load('emailmerge.persistence_path');
 
         // Get a DirectoryIterator and recurse into it
         $iterator = new DirectoryIterator($base);
@@ -255,7 +255,7 @@ class AndrewC_EmailMerge
         // Some issues on Windows (still to be investigated) where empty paths cannot be unlinked
         if ($problems)
         {
-            Kohana::$log->add(Kohana::ERROR, "Couldn't unlink some paths: " . implode(', ', $problems));
+            Kohana::$log->add(Log::ERROR, "Couldn't unlink some paths: " . implode(', ', $problems));
         }
     }
 
@@ -685,11 +685,12 @@ class AndrewC_EmailMerge
      * to clean up the storage once the merge has completed and the handler has done
      * what it needs to.
      *
-     * @param Request $request The parent request
+     * @param Request  $request  The parent request
+     * @param Response $response The parent response
      * @return void
      * @throws InvalidArgumentException if the method is not valid
      */
-    public function merge_complete(Request $request)
+    public function merge_complete(Request $request, Response $response)
     {
         // Get the handler, or the default
         $action = $this->_on_complete ? $this->_on_complete
@@ -713,9 +714,9 @@ class AndrewC_EmailMerge
             //@todo: Can't do POST with KO3.0
             case self::COMPLETION_HMVC_POST:
                 $_GET = $data;
-                $sub_request = Request::factory($uri)
+                $sub_request_response = Request::factory($uri)
                                 ->execute();
-                $request->response = $sub_request->response;
+                $response->body($sub_request_response->body());
             return;
             default:
                 // Unknown method type
