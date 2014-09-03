@@ -3,7 +3,7 @@ defined('SYSPATH') or die('No direct script access.');
 /**
  * @package EmailMerge
  */
-abstract class AndrewC_Controller_EmailMerge extends Controller_Template
+abstract class AndrewC_Controller_Emailmerge extends Controller_Template
 {
     /**
      * @var EmailMerge The merge we're dealing with
