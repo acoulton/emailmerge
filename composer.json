@@ -1,8 +1,8 @@
 {
-    "name":        "acoulton/slowtask",
-    "description": "KO3 module providing a user interface for monitoring and interrupting slow-running tasks",
+    "name":        "acoulton/emailmerge",
+    "description": "KO3 module to provide a full implementation for creating, previewing and sending email merges (a la MailMerge in Word)",
     "keywords":    ["kohana"],
-    "homepage":    "https://github.com/acoulton/slowtask",
+    "homepage":    "https://github.com/acoulton/emailmerge",
     "type":        "kohana-module",
     "license":     "BSD",
     "authors":     [
@@ -13,21 +13,20 @@
         }
     ],
     "require": {
-        "php":           ">=5.3.3",
-        "kohana/core":   "3.3.*"
+        "php":                  ">=5.3.3",
+        "kohana/core":          "3.3.*",
+        "michelf/php-markdown": "~1.4"
     },
     "require-dev": {
-        "kohana/koharness": "*@dev",
-        "kohana/unittest":  "3.3.*@dev"
     },
     "support": {
-        "issues": "https://github.com/acoulton/slowtask/issues",
-        "source": "https://github.com/acoulton/slowtask"
+        "issues": "https://github.com/acoulton/emailmerge/issues",
+        "source": "https://github.com/acoulton/emailmerge"
     },
     "bin": [],
     "extra": {
         "branch-alias": {
-            "dev-3.3/master": "3.3.x-dev"
+            "dev-3.3/develop": "3.3.x-dev"
         },
         "installer-paths": {
             "vendor/{$vendor}/{$name}": ["type:kohana-module"]

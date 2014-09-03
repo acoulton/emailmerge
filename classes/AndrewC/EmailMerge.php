@@ -1,4 +1,6 @@
 <?php
+use Michelf\MarkdownExtra;
+
 defined('SYSPATH') or die('No direct script access.');
 /**
  * Implements a system for creating, previewing and sending a merged
@@ -107,7 +109,7 @@ class AndrewC_EmailMerge
     protected $_merged_mails = array();
 
     /**
-     * @var Markdown_Parser The parser used to render the emails
+     * @var MarkdownExtra The parser used to render the emails
      */
     protected $_markdown = null;
 
@@ -616,13 +618,11 @@ class AndrewC_EmailMerge
 
     }
 
-    /**
-     * Tries to load the Markdown parser, first from registered modules and then
-     * from userguide directly if not found within the CFS. This should therefore
-     * be fairly sturdy on a standard Kohana install.
-     *
-     * @return Markdown_Parser
-     */
+	/**
+	 * Loads the markdown parser (requires the composer autoloader)
+	 *
+	 * @return \Michelf\MarkdownExtra
+	 */
     protected function get_markdown()
     {
         static $markdown = null;
@@ -632,20 +632,7 @@ class AndrewC_EmailMerge
             return $markdown;
         }
 
-        // Search in the CFS
-        $markdown = Kohana::find_file('vendor', 'markdown/markdown');
-        if ($markdown)
-        {
-            require_once($markdown);
-        }
-        else
-        {
-            // Load it directly from the userguide even if it's not enabled
-            require_once(MODPATH . 'userguide/vendor/markdown/markdown.php');
-        }
-
-
-        $markdown = new Markdown_Parser();
+		$markdown = new Michelf\MarkdownExtra;
         $markdown->no_markup = true;
         return $markdown;
     }
