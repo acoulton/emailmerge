@@ -696,7 +696,7 @@ class AndrewC_EmailMerge
             // Redirect to the handler
             case self::COMPLETION_REDIRECT:
                 $uri = $uri . "?" . http_build_query($data);
-                $request->redirect($uri);
+				HTTP::redirect($uri);
             break;
 
             // Execute the handler by HMVC and return the result
