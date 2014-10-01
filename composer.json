@@ -16,7 +16,7 @@
         "php":                  ">=5.3.3",
         "kohana/core":          "3.3.*",
         "michelf/php-markdown": "~1.4",
-        "shadowhand/email":     "3.3.*@dev"
+        "shadowhand/email":     "~2.0.2"
     },
     "require-dev": {
     },
