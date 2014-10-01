@@ -227,6 +227,10 @@ class AndrewC_EmailMerge
     public function garbage_collect()
     {
         $base = Kohana::$config->load('emailmerge.persistence_path');
+		if ( ! is_dir($base))
+		{
+			return;
+		}
 
         // Get a DirectoryIterator and recurse into it
         $iterator = new DirectoryIterator($base);
