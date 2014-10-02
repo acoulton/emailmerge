@@ -703,8 +703,8 @@ class AndrewC_EmailMerge
             case self::COMPLETION_HMVC_GET:
             //@todo: Can't do POST with KO3.0
             case self::COMPLETION_HMVC_POST:
-                $_GET = $data;
                 $sub_request_response = Request::factory($uri)
+								->query($data)
                                 ->execute();
                 $response->body($sub_request_response->body());
             return;
