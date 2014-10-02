@@ -689,13 +689,11 @@ class AndrewC_EmailMerge
                                                             'merge_id'=>$this->_merge_id)),
                                               'method'=>self::COMPLETION_REDIRECT,
                                               'data'=>array('merge_id'=>$this->_merge_id));
-        extract($action);
-
-        switch ($method)
+		switch ($action['method'])
         {
             // Redirect to the handler
             case self::COMPLETION_REDIRECT:
-                $uri = $uri . "?" . http_build_query($data);
+                $uri = $action['uri'] . "?" . http_build_query($action['data']);
 				HTTP::redirect($uri);
             break;
 
@@ -703,14 +701,14 @@ class AndrewC_EmailMerge
             case self::COMPLETION_HMVC_GET:
             //@todo: Can't do POST with KO3.0
             case self::COMPLETION_HMVC_POST:
-                $sub_request_response = Request::factory($uri)
-								->query($data)
+                $sub_request_response = Request::factory($action['uri'])
+								->query($action['data'])
                                 ->execute();
                 $response->body($sub_request_response->body());
             return;
             default:
                 // Unknown method type
-                throw new InvalidArgumentException("Invalid method $method for on-complete callback");
+                throw new InvalidArgumentException("Invalid method {$action['method']} for on-complete callback");
         }
     }
 
