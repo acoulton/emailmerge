@@ -26,12 +26,12 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
         }
 
         // Update the fields
-        switch(Arr::get($_POST,'formtype'))
+        switch($this->request->post('formtype'))
         {
             case 'customise':
-                if (Arr::get($_POST,'load_template'))
+                if ($this->request->post('load_template'))
                 {
-                    $new_template = Arr::get($_POST,'template_file',null);
+                    $new_template = $this->request->post('template_file',null);
                     $this->merge->template()->load($new_template);
                     break;
                 }
@@ -55,7 +55,7 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
             break;
 
             case 'edit_mails':
-                $this->merge->replace_mails(Arr::get($_POST,'mail'));
+                $this->merge->replace_mails($this->request->post('mail'));
                 break;
             break;
         }
