@@ -31,7 +31,7 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
             case 'customise':
                 if ($this->request->post('load_template'))
                 {
-                    $new_template = $this->request->post('template_file',null);
+                    $new_template = $this->request->post('template_file');
                     $this->merge->template()->load($new_template);
                     break;
                 }
