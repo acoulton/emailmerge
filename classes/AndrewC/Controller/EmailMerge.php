@@ -20,9 +20,9 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
 
     public function action_process()
     {
-        if ( ! $_POST)
+        if ($this->request->method() !== \Request::POST)
         {
-            throw new BadMethodCallException('Can only do Process with a POST!');
+            throw new HTTP_Exception_400('Can only do Process with a POST!');
         }
 
         // Update the fields
@@ -35,7 +35,7 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
                     $this->merge->template()->load($new_template);
                     break;
                 }
-                $data = Arr::extract($_POST,array('sender_email','sender_name',
+                $data = Arr::extract($this->request->post(), array('sender_email','sender_name',
                             'template_subject','template_body', 'template_changes',
                             'new_template_name'));
                 $this->merge->sender_email($data['sender_email']);
@@ -62,15 +62,15 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
 
         $this->merge->persist();
 
-        if (isset($_POST['preview_merge']))
+        if ($this->request->post('preview_merge'))
         {
             $action = 'preview';
         }
-        elseif(isset($_POST['edit_mails']))
+        elseif($this->request->post('edit_mails'))
         {
             $action = 'edit';
         }
-        elseif(isset($_POST['send_merge']))
+        elseif($this->request->post('send_merge'))
         {
            $action = 'send';
         }
