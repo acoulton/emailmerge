@@ -119,7 +119,7 @@ class AndrewC_EmailMerge
      *     $merge = EmailMerge::factory();
      *
      *     // If you want to prevent a new merge being created, pass an invalid ID
-     *     $existing_merge = EmailMerge::factory($this->request->query('merge_id',-1));
+     *     $existing_merge = EmailMerge::factory($this->request->query('merge_id') ? : -1;
      *
      * @param string $merge_id The UUID of the merge to load, or null to create new
      * @param array $config A set of config values to merge with existing config
