@@ -235,6 +235,7 @@ class AndrewC_EmailMerge
         // Get a DirectoryIterator and recurse into it
         $iterator = new DirectoryIterator($base);
         $this->_gc_find_empty($iterator, $base, $empty_paths);
+        unset($iterator);
 
         // Check for empty paths
         if (! $empty_paths)
@@ -249,7 +250,10 @@ class AndrewC_EmailMerge
         {
             try
             {
-                unlink($path);
+                if ( ! rmdir($path))
+                {
+                    $problems[] = $path;
+                }
             }
             catch(ErrorException $e)
             {
@@ -257,7 +261,7 @@ class AndrewC_EmailMerge
             }
         }
 
-        // Some issues on Windows (still to be investigated) where empty paths cannot be unlinked
+        // Log any failures to remove paths
         if ($problems)
         {
             Kohana::$log->add(Log::ERROR, "Couldn't unlink some paths: " . implode(', ', $problems));
@@ -298,9 +302,15 @@ class AndrewC_EmailMerge
             // Recurse into any folders found
             if ($file->isDir())
             {
-                $sub_empty = $this->_gc_find_empty(new DirectoryIterator($file->getPathname()), $file->getPathname(), $empty_paths);
+                $sub_iterator = new DirectoryIterator($file->getPathname());
+                $sub_empty = $this->_gc_find_empty($sub_iterator, $file->getPathname(), $empty_paths);
                 $empty = $empty && $sub_empty;
+                unset($sub_iterator);
             }
+        }
+        if (isset($file))
+        {
+            unset($file);
         }
         if ($empty)
         {
