@@ -90,6 +90,8 @@ class AndrewC_EmailMerge_Template
             throw new BadMethodCallException("Can't set namespace once loaded");
         }
         $this->_namespace = $namespace;
+        // Load the default template for the namespace to reinitialise
+        $this->load();
     }
 
     public function get_namespace()
