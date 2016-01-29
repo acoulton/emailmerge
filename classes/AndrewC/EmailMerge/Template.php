@@ -23,7 +23,6 @@ class AndrewC_EmailMerge_Template
     protected $_name = 'default';
     protected $_namespace = 'generic';
     protected $_loaded = false;
-    protected static $_client_store = null;
 
     /**
      *
@@ -99,39 +98,28 @@ class AndrewC_EmailMerge_Template
         return $this->_namespace;
     }
 
-    protected function _paths()
+    protected function get_storage_path()
     {
-        static $paths = null;
-        if ($paths)
-        {
-            return $paths;
-        }
 
-        if ( ! self::$_client_store)
-        {
-            self::$_client_store = Kohana::$config->load('emailmerge.client_template_path');
-        }
-
-        // The top path is the client's template store
-        $paths = array(self::$_client_store . $this->_namespace . '/');
-
-        // Then the Kohana paths
-        foreach (Kohana::include_paths() as $path)
-        {
-            $paths[] = $path . 'emailmerge/templates/' . $this->_namespace . '/';
-        }
-        return $paths;
+        if ( ! $base_path = Kohana::$config->load('emailmerge.client_template_path')) {
+            throw new \InvalidArgumentException('No default custom template path is configured');
+        };
+        $path      = rtrim($base_path, '/').'/'.$this->_namespace.'/';
+        return $path;
     }
 
     public function available_templates()
     {
-        $files = Kohana::list_files(null, $this->_paths());
-        $templates = array(null=>'Default');
-        foreach ($files as $file)
-        {
-            $file = basename($file, '.php');
+        $templates = array();
+        foreach (glob($this->get_storage_path().'/*.json') as $file) {
+            $file = basename($file, '.json');
             $templates[$file] = str_replace('-', ' ', ucwords($file));
         }
+
+        if ( ! $templates) {
+            $templates[null] = 'Default';
+        }
+
         return $templates;
     }
 
@@ -143,27 +131,17 @@ class AndrewC_EmailMerge_Template
             $this->_name = URL::title($name,'-',true);
         }
 
-        // Search for a template file in our path tree
-        $data = null;
-        foreach ($this->_paths() as $path)
-        {
-            $file = $path . $this->_name . '.php';
-
-            // Found a template - load it
-            if (is_file($file))
-            {
-                $data = include($file);
-                $this->_subject = $data['subject'];
-                $this->_body = $data['body'];
-                break;
+        $file = $this->get_storage_path().'/'.$this->_name.'.json';
+        if (is_file($file)) {
+            if ( ! $data = json_decode(file_get_contents($file), TRUE)) {
+                throw new \UnexpectedValueException('Corrupt JSON template data in '.$file);
             }
-        }
 
-        // Nothing found - reset to empty
-        if ($data === null)
-        {
-            $this->_subject = null;
-            $this->_body = null;
+            $this->_subject = $data['subject'];
+            $this->_body    = $data['body'];
+        } else {
+            $this->_subject = NULL;
+            $this->_body    = NULL;
         }
 
         // Mark loaded, tell the merge the template has changed
@@ -179,20 +157,21 @@ class AndrewC_EmailMerge_Template
             $this->_name = URL::title($name,'-',true);
         }
 
-        // Store it in the top level of our paths
-        $path = Arr::get($this->_paths(),0,'!No Paths Found!');
-
-        if ( ! is_dir($path))
-        {
-            mkdir($path, 0777, true);
+        $path = $this->get_storage_path();
+        if ( ! (is_dir($path) OR mkdir($path, 0777, TRUE))) {
+            throw new \RuntimeException('Could not create template storage path in '.$path);
         }
 
-        // Create a formatted php file
-        $template = "<?php\r\n return " . var_export(array(
-                            'subject' => $this->_subject,
-                            'body'    => $this->_body),
-                        true) . ";";
-        file_put_contents($path . $this->_name . '.php', $template);
+        $file = $path.'/'.$this->_name.'.json';
+        $data = array(
+            'subject' => $this->_subject,
+            'body'    => $this->_body
+        );
+
+        if ( ! file_put_contents($file, json_encode($data))) {
+            throw new \RuntimeException('Could not write template to file '.$file);
+        }
+
         return $this;
     }
 
