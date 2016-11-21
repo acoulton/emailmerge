@@ -1,6 +1,6 @@
 <?php
 defined('SYSPATH') or die('No direct script access.');
-use Shadowhand\Email;
+
 /**
  * @package EmailMerge
  */
@@ -111,12 +111,10 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
         set_time_limit(0);
         ignore_user_abort(true);
 
-        $mails = $this->merge->get_mails();
-
-        $mailer = Email::mailer();
-        /* @var $mailer Swift_Mailer */
-        $failures = false;
-        $ok = array();
+        $mails    = $this->merge->get_mails();
+        $mailer   = $this->get_mailer();
+        $failures = FALSE;
+        $ok       = [];
         foreach ($mails as $key=>$mail)
         {
             if ($mailer->send($this->merge->swift_mail($mail)))
@@ -154,4 +152,9 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
                                 ->set('merge',$this->merge);
         $this->merge->dispose();
     }
+
+    /**
+     * @return Swift_Mailer
+     */
+    abstract protected function get_mailer();
 }
