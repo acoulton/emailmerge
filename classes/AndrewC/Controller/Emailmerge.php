@@ -115,7 +115,6 @@ abstract class AndrewC_Controller_Emailmerge extends Controller_Template
 
         $mailer = Email::mailer();
         /* @var $mailer Swift_Mailer */
-        $mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin(15, 30));
         $failures = false;
         $ok = array();
         foreach ($mails as $key=>$mail)
